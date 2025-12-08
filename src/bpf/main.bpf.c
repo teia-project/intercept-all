@@ -2,14 +2,14 @@
 
 static __always_inline __u64 load_u64(const char *data, int off)
 {
-    return ((__u64)(unsigned char)data[off + 0])        |
-           ((__u64)(unsigned char)data[off + 1] << 8)  |
-           ((__u64)(unsigned char)data[off + 2] << 16) |
-           ((__u64)(unsigned char)data[off + 3] << 24) |
-           ((__u64)(unsigned char)data[off + 4] << 32) |
-           ((__u64)(unsigned char)data[off + 5] << 40) |
-           ((__u64)(unsigned char)data[off + 6] << 48) |
-           ((__u64)(unsigned char)data[off + 7] << 56);
+    return ((__u64)(unsigned char)data[(off * 8) + 0])        |
+           ((__u64)(unsigned char)data[(off * 8) + 1] << 8)  |
+           ((__u64)(unsigned char)data[(off * 8) + 2] << 16) |
+           ((__u64)(unsigned char)data[(off * 8) + 3] << 24) |
+           ((__u64)(unsigned char)data[(off * 8) + 4] << 32) |
+           ((__u64)(unsigned char)data[(off * 8) + 5] << 40) |
+           ((__u64)(unsigned char)data[(off * 8) + 6] << 48) |
+           ((__u64)(unsigned char)data[(off * 8) + 7] << 56);
 }
 
 SEC("cgroup/syscall_enter")
@@ -22,9 +22,6 @@ int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
 
         __u64 di = load_u64(ctx->regs_data, 14);
         bpf_printk("di=%llu\n", di);
-
-        int dix = (__s32)(di & 0xffffffff);
-        bpf_printk("di (32bit)=%d\n", dix);
 
         bpf_printk("di bytes: %u %u %u %u %u %u %u %u\n",
            (unsigned char)ctx->regs_data[112+0],
