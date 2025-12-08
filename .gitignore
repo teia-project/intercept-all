@@ -1,1 +1,2 @@
-./src/bpf/build
+./src/bpf/build/*
+*.bpf.o
