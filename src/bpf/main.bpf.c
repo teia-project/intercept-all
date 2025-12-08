@@ -24,10 +24,10 @@ int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
         __u64 arg1 = load_u64(ctx->regs_data, 14);
         bpf_printk("arg1=%llu\n", arg1);
         
-        __u64 arg2 = load_u64(ctx->regs_data, 15);
+        __u64 arg2 = load_u64(ctx->regs_data, 13);
         bpf_printk("arg2=%llu\n", arg2);
 
-        __u64 arg3 = load_u64(ctx->regs_data, 16);
+        __u64 arg3 = load_u64(ctx->regs_data, 12);
         bpf_printk("arg3=%llu\n", arg3);
 
         // ((volatile unsigned char *)&ctx->regs_data[112])[0] = 0;
