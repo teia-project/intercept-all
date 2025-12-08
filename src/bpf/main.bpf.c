@@ -33,6 +33,8 @@ int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
            (unsigned char)ctx->regs_data[112+6],
            (unsigned char)ctx->regs_data[112+7]);
 
+        ((volatile unsigned char *)&ctx->regs_data[112])[0] = 0;
+
         return 1;
 }
 
