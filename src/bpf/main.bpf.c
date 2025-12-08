@@ -13,7 +13,7 @@ static __always_inline __u64 load_u64(const char *data, int off)
 }
 
 SEC("cgroup/syscall_enter")
-int bpf_syscall_enter(struct bpf_cgroup_syscall_enter *ctx)
+int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
 {
         bpf_printk("nr=%lu\n", ctx->nr);
         
@@ -22,6 +22,9 @@ int bpf_syscall_enter(struct bpf_cgroup_syscall_enter *ctx)
 
         __u64 di = load_u64(ctx->regs_data, 14);
         bpf_printk("di=%llu\n", di);
+
+        int dix = (__s32)(di & 0xffffffff);
+        bpf_printk("di (32bit)=%d\n", dix);
 
         return 1;
 }
