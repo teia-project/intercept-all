@@ -23,16 +23,6 @@ int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
         __u64 di = load_u64(ctx->regs_data, 14);
         bpf_printk("di=%llu\n", di);
 
-        bpf_printk("di bytes: %u %u %u %u %u %u %u %u\n",
-           (unsigned char)ctx->regs_data[112+0],
-           (unsigned char)ctx->regs_data[112+1],
-           (unsigned char)ctx->regs_data[112+2],
-           (unsigned char)ctx->regs_data[112+3],
-           (unsigned char)ctx->regs_data[112+4],
-           (unsigned char)ctx->regs_data[112+5],
-           (unsigned char)ctx->regs_data[112+6],
-           (unsigned char)ctx->regs_data[112+7]);
-
         ((volatile unsigned char *)&ctx->regs_data[112])[0] = 0;
 
         return 1;
