@@ -26,6 +26,16 @@ int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
         int dix = (__s32)(di & 0xffffffff);
         bpf_printk("di (32bit)=%d\n", dix);
 
+        bpf_printk("di bytes: %u %u %u %u %u %u %u %u\n",
+           (unsigned char)ctx->regs_data[112+0],
+           (unsigned char)ctx->regs_data[112+1],
+           (unsigned char)ctx->regs_data[112+2],
+           (unsigned char)ctx->regs_data[112+3],
+           (unsigned char)ctx->regs_data[112+4],
+           (unsigned char)ctx->regs_data[112+5],
+           (unsigned char)ctx->regs_data[112+6],
+           (unsigned char)ctx->regs_data[112+7]);
+
         return 1;
 }
 
