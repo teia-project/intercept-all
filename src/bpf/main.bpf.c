@@ -30,6 +30,15 @@ int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
         __u64 arg3 = load_u64(ctx->regs_data, 12);
         bpf_printk("arg3=%llu\n", arg3);
 
+        struct sockaddr_in addr;
+        if (bpf_probe_read_user(&addr, sizeof(addr), (void *) arg2) < 0) {
+                return 0;
+        }
+
+        bpf_printk("sin_family=%u\n", addr.sin_family);
+        bpf_printk("sin_addr=%u\n", bpf_ntohl(addr.sin_addr.s_addr));
+        bpf_printk("sin_port=%u\n", bpf_ntohs(addr.sin_addr.sin_port));
+
         // ((volatile unsigned char *)&ctx->regs_data[112])[0] = 0;
 
         return 1;
