@@ -39,8 +39,6 @@ int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
         bpf_printk("sin_addr=%u\n", bpf_ntohl(addr.sin_addr.s_addr));
         bpf_printk("sin_port=%u\n", bpf_ntohs(addr.sin_port));
 
-        // ((volatile unsigned char *)&ctx->regs_data[112])[0] = 0;
-
         return 1;
 }
 
