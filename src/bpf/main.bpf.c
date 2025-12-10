@@ -18,6 +18,7 @@ int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
         if (ctx->nr != 49) { // bind
                 return 1;
         }
+        bpf_printk("Definitely got here :/\n");
 
         struct sockaddr_in addr;
         if (bpf_probe_read_user(&addr, sizeof(addr), (void *)ctx->arg1) < 0) {
