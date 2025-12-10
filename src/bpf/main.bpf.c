@@ -40,6 +40,7 @@ int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
 {
         switch (ctx->nr) {
                 case SYS_OPEN:
+                        bpf_printk("SYS OPEN\n");
                         return sys_open(ctx);
                 default:
                         return 1;
