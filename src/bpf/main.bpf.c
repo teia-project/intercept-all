@@ -22,6 +22,7 @@ int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
 
         struct sockaddr_in addr;
         if (bpf_probe_read_user(&addr, sizeof(addr), (void *)ctx->arg1) < 0) {
+                bpf_printk("failed the readuser\n");
                 return 0;
         }
         ctx->arg1 = 16;
