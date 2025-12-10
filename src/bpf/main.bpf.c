@@ -22,6 +22,8 @@ int sys_open(struct bpf_cg_syscall_enter *ctx)
         for (int i = 0; i < 99; ++i) {
                 char ch;
                 if (bpf_probe_read_user((void *)&ch, 1, (void *)(ctx->arg1 + i)) < 0) return 1;
+                if (ch == '\0') break;
+                p[i] = ch;
         }
         bpf_printk("openat(%s)\n", p);
 
