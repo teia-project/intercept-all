@@ -4,9 +4,9 @@
 int main() 
 {
         asm volatile(
-                "mov %0, %%rdi"
+                "movq %0, %%rdi"
                 :
-                : "r"(0xEB9F)
+                : "r"(0xEB9Ful)
                 : "rdi"
                 );
         printf("pid=%d\n", getpid());
