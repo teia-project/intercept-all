@@ -14,6 +14,10 @@ enum syscall_arg {
         ctx->reg = off; \
         ctx->resolve_ptr_regs |= ((__u8)1 << __eps_##reg)
 
+union eps_val {
+
+};
+
 #define SYS_OPEN 257
 
 int sys_open(struct bpf_cg_syscall_enter *ctx)

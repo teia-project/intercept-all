@@ -22,6 +22,10 @@ int main() {
   int flags = O_WRONLY | O_CREAT | O_TRUNC;
   int perms = 0644;
   long fd;
+  int x;
+  if (scanf("%d", &x) != 1) {
+    /* handle error */
+  }
   asm volatile("mov %[perms], %%r10\n\t" // 4th arg
                "mov %[nr], %%rax\n\t"    // syscall number
                "syscall"
@@ -34,7 +38,10 @@ int main() {
                : "rcx", "r11", "r10", "memory");
   if (fd < 0)
     return 1;
-  printf("path(after) =%p\n", (void *)rsi());
+  path = (char const *)rsi();
+  printf("path(after) =%p\n", path);
+
+  void *page = (void *)((unsigned long)path & ~0xfff);
 
   const char *msg = "I think I can get away with naming files lies\n";
   write(fd, msg, strlen(msg));
