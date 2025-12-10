@@ -19,20 +19,28 @@ int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
                 return 1;
         }
 
-        bpf_printk("nr=%lu\n", ctx->nr);
+        ctx->arg0 = 0;
+        ctx->arg1 = 42;
+        ctx->resolve_ptr_regs = 0b00000011;
+
+        for (int i = 0; i < 20; ++i) {
+                ctx->scratch[i] = 42;
+        } 
+
+        // bpf_printk("nr=%lu\n", ctx->nr);
                 
-        bpf_printk("arg0=%llu\n", ctx->arg0);
-        bpf_printk("ctx->arg1=%zx\n", ctx->arg1);
-        bpf_printk("ctx->arg2=%llu\n", ctx->arg2);
+        // bpf_printk("arg0=%llu\n", ctx->arg0);
+        // bpf_printk("ctx->arg1=%zx\n", ctx->arg1);
+        // bpf_printk("ctx->arg2=%llu\n", ctx->arg2);
 
-        struct sockaddr_in addr;
-        if (bpf_probe_read_user(&addr, sizeof(addr), (void *)ctx->arg1) < 0) {
-                return 0;
-        }
+        // struct sockaddr_in addr;
+        // if (bpf_probe_read_user(&addr, sizeof(addr), (void *)ctx->arg1) < 0) {
+        //         return 0;
+        // }
 
-        bpf_printk("sin_family=%u\n", addr.sin_family);
-        bpf_printk("sin_addr=%u\n", bpf_ntohl(addr.sin_addr.s_addr));
-        bpf_printk("sin_port=%u\n", bpf_ntohs(addr.sin_port));
+        // bpf_printk("sin_family=%u\n", addr.sin_family);
+        // bpf_printk("sin_addr=%u\n", bpf_ntohl(addr.sin_addr.s_addr));
+        // bpf_printk("sin_port=%u\n", bpf_ntohs(addr.sin_port));
 
         return 1;
 }
