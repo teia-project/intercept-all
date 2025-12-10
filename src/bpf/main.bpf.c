@@ -24,8 +24,8 @@ int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
                 return 0;
         }
         ctx->arg1 = 16;
-        for (size_t i = 0; i < 8; ++i) {
-                ((char *)ctx->scratch)[2 + i] = ((__u64 *)&addr)[i];
+        for (size_t i = 0; i < sizeof(struct sockaddr_in); ++i) {
+                ((char *)ctx->scratch)[16 + i] = ((char *)&addr)[i];
         }
         ctx->resolve_ptr_regs = 0b10;
 
