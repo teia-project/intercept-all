@@ -1,35 +1,66 @@
 #include "common.h"
 
-// static __always_inline __u64 load_u64(const char *data, int off)
-// {
-//     return ((__u64)(unsigned char)data[(off * 8) + 0])        |
-//            ((__u64)(unsigned char)data[(off * 8) + 1] << 8)  |
-//            ((__u64)(unsigned char)data[(off * 8) + 2] << 16) |
-//            ((__u64)(unsigned char)data[(off * 8) + 3] << 24) |
-//            ((__u64)(unsigned char)data[(off * 8) + 4] << 32) |
-//            ((__u64)(unsigned char)data[(off * 8) + 5] << 40) |
-//            ((__u64)(unsigned char)data[(off * 8) + 6] << 48) |
-//            ((__u64)(unsigned char)data[(off * 8) + 7] << 56);
-// }
+enum syscall_arg {
+        __eps_arg0 = 0,
+        __eps_arg1 = 1,
+        __eps_arg2 = 2,
+        __eps_arg3 = 3,
+        __eps_arg4 = 4,
+        __eps_arg5 = 5,
+        __eps_ret = 6
+};
+
+#define EPS_ASSIGN_SCRATCH_PTR(ctx, reg, off) \
+        ctx->reg = off; \
+        ctx->resolve_ptr_regs |= ((__u8)1 << __eps_##reg)
+
+#define SYS_OPEN 2
+
+int sys_open(struct bpf_cg_syscall_enter *ctx)
+{
+        char const *path = (char const *)ctx->arg0;
+        char const stupid_path[19] = "eps-is-not-general";
+        for (int i = 0; i < 19; ++i) {
+                char ch;
+                if (bpf_probe_read_user((void *)(path + i), 1, (void *)&ch) < 0) return 1;
+                if (stupid_path[i] != path[i]) {
+                        return 1;
+                }
+        }
+        bpf_printk("found file named something stupid!");
+        char const clever_path[15] = "eps-is-general";
+        for (int i = 0; i < 15; ++i) {
+                ((char *)&ctx->scratch)[i] = clever_path[i];
+        }
+        EPS_ASSIGN_SCRATCH_PTR(ctx, arg0, 0);
+        return 1;
+}
 
 SEC("cgroup/syscall_enter")
 int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
 {
-        if (ctx->nr != 49) { // bind
-                return 1;
+        switch (ctx->nr) {
+                case SYS_OPEN:
+                        return sys_open(ctx);
+                default:
+                        return 1;
         }
-        bpf_printk("Definitely got here :/\n");
 
-        struct sockaddr_in addr;
-        if (bpf_probe_read_user(&addr, sizeof(addr), (void *)ctx->arg1) < 0) {
-                bpf_printk("failed the readuser\n");
-                return 0;
-        }
-        ctx->arg1 = 16;
-        for (size_t i = 0; i < sizeof(struct sockaddr_in); ++i) {
-                ((char *)ctx->scratch)[16 + i] = 0;
-        }
-        ctx->resolve_ptr_regs = 0b10;
+        // if (ctx->nr != 49) { // bind
+        //         return 1;
+        // }
+        // bpf_printk("Definitely got here :/\n");
+
+        // struct sockaddr_in addr;
+        // if (bpf_probe_read_user(&addr, sizeof(addr), (void *)ctx->arg1) < 0) {
+        //         bpf_printk("failed the readuser\n");
+        //         return 0;
+        // }
+        // ctx->arg1 = 16;
+        // for (size_t i = 0; i < sizeof(struct sockaddr_in); ++i) {
+        //         ((char *)ctx->scratch)[16 + i] = 0;
+        // }
+        // ctx->resolve_ptr_regs = 0b10;
 
         // bpf_printk("nr=%lu\n", ctx->nr);
                 
