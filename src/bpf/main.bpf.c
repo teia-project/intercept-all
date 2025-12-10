@@ -22,7 +22,7 @@ int sys_open(struct bpf_cg_syscall_enter *ctx)
         char const stupid_path[19] = "eps-is-not-general";
         for (int i = 0; i < 19; ++i) {
                 char ch;
-                if (bpf_probe_read_user((void *)(path + i), 1, (void *)&ch) < 0) return 1;
+                if (bpf_probe_read_user((void *)&ch, 1, (void *)(path + i)) < 0) return 1;
                 if (stupid_path[i] != path[i]) {
                         return 1;
                 }
