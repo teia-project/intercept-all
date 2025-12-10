@@ -15,7 +15,7 @@
 SEC("cgroup/syscall_enter")
 int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
 {
-        if (ctx->nr != 49) {
+        if (ctx->nr != 39) { // getpid()
                 return 1;
         }
 
