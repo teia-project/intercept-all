@@ -23,14 +23,14 @@ int sys_open(struct bpf_cg_syscall_enter *ctx)
         for (int i = 0; i < 19; ++i) {
                 char ch;
                 if (bpf_probe_read_user((void *)&ch, 1, (void *)(path + i)) < 0) return 1;
-                if (stupid_path[i] != path[i]) {
+                if (stupid_path[i] != ch) {
                         return 1;
                 }
         }
         bpf_printk("found file named something stupid!");
         char const clever_path[16] = "eps-is-general\0";
         ctx->scratch[0] = *(__u64 *)&clever_path[0];
-        ctx->scratch[1] = *(__u64 *)&clever_path[1];
+        ctx->scratch[1] = *(__u64 *)&clever_path[8];
         EPS_ASSIGN_SCRATCH_PTR(ctx, arg0, 0);
         return 1;
 }
