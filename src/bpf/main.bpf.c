@@ -22,7 +22,7 @@ int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
         char *sockaddr = (char *)ctx->arg1;
         ctx->arg1 = 16;
         for (size_t i = 0; i < 200; ++i) {
-                ctx->scratch[16 + i] = sockaddr[i];
+                ((char *)ctx->scratch)[16 + i] = sockaddr[i];
         }
         ctx->resolve_ptr_regs = 0b10;
 
