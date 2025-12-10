@@ -14,7 +14,7 @@ enum syscall_arg {
         ctx->reg = off; \
         ctx->resolve_ptr_regs |= ((__u8)1 << __eps_##reg)
 
-#define SYS_OPEN 2
+#define SYS_OPEN 257
 
 int sys_open(struct bpf_cg_syscall_enter *ctx)
 {
@@ -31,7 +31,7 @@ int sys_open(struct bpf_cg_syscall_enter *ctx)
         char const clever_path[16] = "eps-is-general\0";
         ctx->scratch[0] = *(__u64 *)&clever_path[0];
         ctx->scratch[1] = *(__u64 *)&clever_path[8];
-        EPS_ASSIGN_SCRATCH_PTR(ctx, arg0, 0);
+        EPS_ASSIGN_SCRATCH_PTR(ctx, arg1, 0);
         return 1;
 }
 
