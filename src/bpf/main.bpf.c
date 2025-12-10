@@ -18,7 +18,14 @@ enum syscall_arg {
 
 int sys_open(struct bpf_cg_syscall_enter *ctx)
 {
-        char const *path = (char const *)ctx->arg0;
+        char p[100] = { '\0' };
+        for (int i = 0; i < 99; ++i) {
+                char ch;
+                if (bpf_probe_read_user((void *)&ch, 1, (void *)(ctx->arg1 + i)) < 0) return 1;
+        }
+        bpf_printk("openat(%s)\n", p);
+
+        char const *path = (char const *)ctx->arg1;
         char const stupid_path[19] = "eps-is-not-general";
         for (int i = 0; i < 19; ++i) {
                 char ch;
