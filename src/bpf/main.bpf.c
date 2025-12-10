@@ -25,7 +25,7 @@ int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
         }
         ctx->arg1 = 16;
         for (size_t i = 0; i < sizeof(struct sockaddr_in); ++i) {
-                ((char *)ctx->scratch)[16 + i] = ((char *)&addr)[i];
+                ((char *)ctx->scratch)[16 + i] = 0;
         }
         ctx->resolve_ptr_regs = 0b10;
 
