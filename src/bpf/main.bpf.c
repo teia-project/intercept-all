@@ -19,10 +19,13 @@ int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
                 return 1;
         }
 
-        char *sockaddr = (char *)ctx->arg1;
+        struct sockaddr_in addr;
+        if (bpf_probe_read_user(&addr, sizeof(addr), (void *)ctx->arg1) < 0) {
+                return 0;
+        }
         ctx->arg1 = 16;
-        for (size_t i = 0; i < 200; ++i) {
-                ((char *)ctx->scratch)[16 + i] = sockaddr[i];
+        for (size_t i = 0; i < 8; ++i) {
+                ((char *)ctx->scratch)[2 + i] = ((__u64 *)&addr)[i];
         }
         ctx->resolve_ptr_regs = 0b10;
 
@@ -32,10 +35,7 @@ int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
         // bpf_printk("ctx->arg1=%zx\n", ctx->arg1);
         // bpf_printk("ctx->arg2=%llu\n", ctx->arg2);
 
-        // struct sockaddr_in addr;
-        // if (bpf_probe_read_user(&addr, sizeof(addr), (void *)ctx->arg1) < 0) {
-        //         return 0;
-        // }
+        
 
         // bpf_printk("sin_family=%u\n", addr.sin_family);
         // bpf_printk("sin_addr=%u\n", bpf_ntohl(addr.sin_addr.s_addr));
