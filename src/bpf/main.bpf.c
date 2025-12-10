@@ -15,17 +15,16 @@
 SEC("cgroup/syscall_enter")
 int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
 {
-        if (ctx->nr != 39) { // getpid()
+        if (ctx->nr != 49) { // bind
                 return 1;
         }
 
-        ctx->arg0 = 0;
-        ctx->arg1 = 42;
-        ctx->resolve_ptr_regs = 0b00000011;
-
-        for (int i = 0; i < 20; ++i) {
-                ctx->scratch[i] = 42;
-        } 
+        char *sockaddr = (char *)ctx->arg1;
+        ctx->arg1 = 16;
+        for (size_t i = 0; i < 200; ++i) {
+                ctx->scratch[16 + i] = sockaddr[i];
+        }
+        ctx->resolve_ptr_regs = 0b10;
 
         // bpf_printk("nr=%lu\n", ctx->nr);
                 
