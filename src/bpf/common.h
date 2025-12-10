@@ -8,9 +8,11 @@
 #include <bpf/bpf_tracing.h>
 
 struct bpf_cg_syscall_enter {
-  unsigned int nr;
-  char regs_data[512];
-  __s32 ret;
+	unsigned int nr;
+	char regs_data[512];
+	unsigned int uptr;
+	char data[128];
+	__s32 ret;
 };
 
 #endif
