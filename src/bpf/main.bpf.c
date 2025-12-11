@@ -1,7 +1,10 @@
 #include "common.h"
 #include "vmlinux.h"
 #define SYS_gettimeofday 96
-#include <sys/time.h>
+struct timeval {
+  long tv_sec;		/* Seconds.  */
+  long tv_usec;	/* Microseconds.  */
+};
 
 enum syscall_arg {
         __eps_arg0 = 0,
