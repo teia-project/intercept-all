@@ -71,7 +71,6 @@ int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
                 flags |= 4;
                 bpf_printk("update singleton");
         }
-        main switch
         switch (ctx->nr) {
                 case SYS_gettimeofday:
                         bpf_printk("SYS_gettimeofday enter\n");
