@@ -74,7 +74,7 @@ int sys_gettimeofday_exit(struct bpf_cg_syscall_enter *ctx)
 SEC("cgroup/syscall_enter")
 int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
 {
-        // int flags = 0; 
+        int flags = 0; 
         // // if this is the first time we call a syscall, update this
         // if (ctx->active_eps_hooks[0] == 0xfffffffffffffffful) {
         //         ctx->active_eps_hooks[0] = 0;
