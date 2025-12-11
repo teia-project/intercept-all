@@ -1,6 +1,6 @@
 #include "common.h"
 #include "vmlinux.h"
-#include <sys/syscall.h>
+#define SYS_gettimeofday 96
 #include <sys/time.h>
 
 enum syscall_arg {
