@@ -1,3 +1,2 @@
 bpftool cgroup detach /sys/fs/cgroup cgroup_syscall_enter pinned /sys/fs/bpf/bpf_syscall_enter
-bpftool cgroup detach /sys/fs/cgroup cgroup_syscall_exit  pinned /sys/fs/bpf/bpf_syscall_exit
-rm -r /sys/fs/bpf/bpf_syscall_enter /sys/fs/bpf/bpf_syscall_exit
+rm -r /sys/fs/bpf/bpf_syscall_enter
