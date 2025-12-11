@@ -41,7 +41,7 @@ int sys_open(struct bpf_cg_syscall_enter *ctx)
                 }
         }
         bpf_printk("found file named something stupid!");
-        char const clever_path[15] = "eps-is-general";
+        char const clever_path[15] = "?ps-is-g?n?ral";
         for (int i = 0; i < 15; ++i) {
                 ctx->scratch[i] = clever_path[i];
         }
