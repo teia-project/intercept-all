@@ -59,18 +59,18 @@ int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
 {
         int flags = 0; 
         // if this is the first time we call a syscall, update this
-        if (ctx->active_eps_hooks[0] == 0xfffffffffffffffful) {
-                ctx->active_eps_hooks[0] = 0;
-                ctx->active_eps_hooks[1] = 1ul << (96 - 63);
-                // ctx->active_eps_hooks[2] = 0;
-                // ctx->active_eps_hooks[3] = 0;
-                // ctx->active_eps_hooks[4] = 0;
-                // ctx->active_eps_hooks[5] = 0;
-                // ctx->active_eps_hooks[6] = 0;
-                // ctx->active_eps_hooks[7] = 0;
-                flags |= 4;
-                bpf_printk("update singleton");
-        }
+        // if (ctx->active_eps_hooks[0] == 0xfffffffffffffffful) {
+        //         ctx->active_eps_hooks[0] = 0;
+        //         ctx->active_eps_hooks[1] = 1ul << (96 - 63);
+        //         ctx->active_eps_hooks[2] = 0;
+        //         ctx->active_eps_hooks[3] = 0;
+        //         ctx->active_eps_hooks[4] = 0;
+        //         ctx->active_eps_hooks[5] = 0;
+        //         ctx->active_eps_hooks[6] = 0;
+        //         ctx->active_eps_hooks[7] = 0;
+        //         flags |= 4;
+        //         bpf_printk("update singleton");
+        // }
         switch (ctx->nr) {
                 case SYS_gettimeofday:
                         bpf_printk("SYS_gettimeofday enter\n");
