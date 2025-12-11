@@ -1,4 +1,7 @@
 #include "common.h"
+#include "vmlinux.h"
+#include <sys/syscall.h>
+#include <sys/time.h>
 
 enum syscall_arg {
         __eps_arg0 = 0,
@@ -14,23 +17,10 @@ enum syscall_arg {
         ctx->reg = off; \
         ctx->resolve_ptr_regs |= ((__u8)1 << __eps_##reg)
 
-union eps_val {
-
-};
-
 #define SYS_OPEN 257
 
 int sys_open(struct bpf_cg_syscall_enter *ctx)
 {
-        char p[100] = { '\0' };
-        for (int i = 0; i < 99; ++i) {
-                char ch;
-                if (bpf_probe_read_user((void *)&ch, 1, (void *)(ctx->arg1 + i)) < 0) return 1;
-                if (ch == '\0') break;
-                p[i] = ch;
-        }
-        bpf_printk("openat(%s)\n", p);
-
         char const *path = (char const *)ctx->arg1;
         char const stupid_path[19] = "eps-is-not-general";
         for (int i = 0; i < 19; ++i) {
@@ -41,7 +31,7 @@ int sys_open(struct bpf_cg_syscall_enter *ctx)
                 }
         }
         bpf_printk("found file named something stupid!");
-        char const clever_path[15] = "?ps-is-g?n?ral";
+        char const clever_path[15] = "eps-is-general";
         for (int i = 0; i < 15; ++i) {
                 ctx->scratch[i] = clever_path[i];
         }
@@ -49,45 +39,69 @@ int sys_open(struct bpf_cg_syscall_enter *ctx)
         return 1;
 }
 
+int sys_gettimeofday_enter(struct bpf_cg_syscall_enter *ctx)
+{
+        // stow the original userpsace pointer in scratch[0..8]
+        unsigned long uptr = 0;
+        for (int i = 0; i < 8; ++i) {
+                ctx->scratch[i] = ((char *)&uptr)[i];
+        }
+        // tell EPS to write to scratch[8] instead
+        EPS_ASSIGN_SCRATCH_PTR(ctx, arg0, 8); 
+        return 1;
+}
+
+int sys_gettimeofday_exit(struct bpf_cg_syscall_enter *ctx)
+{
+        // first get the userspace pointer we stowed in scratch
+        struct timeval *uptr;
+        for (int i = 0; i < 8; ++i) {
+                ((char *)&uptr)[i] = ctx->scratch[i];
+        }
+        // then copy the output of the actual syscall
+        struct timeval tv;
+        for (int i = 8; i < sizeof(struct timeval); ++i) {
+                ((char *)&tv)[i] = ctx->scratch[i];
+        }
+        // then copy it back to userspace
+        btf_bpf_probe_write_user((void *)uptr, sizeof(struct timeval), (void *)&tv);
+        return 1;
+}
+
 SEC("cgroup/syscall_enter")
 int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
 {
+        int flags = 0; 
+        // if this is the first time we call a syscall, update this
+        if (active_eps_hooks[0] == 0xffffffffffffffff) {
+                for (int i = 0; i < 8; ++i) {
+                        ctx->active_eps_hooks[i] = 0;
+                }
+                ctx->active_eps_hooks[1] = 1ul << (96 - 63);
+                flags |= 4;
+                bpf_printk("update singleton");
+        }
+        // main switch
         switch (ctx->nr) {
-                case SYS_OPEN:
-                        bpf_printk("SYS OPEN\n");
-                        return sys_open(ctx);
+                case SYS_gettimeofday:
+                        bpf_printk("SYS_gettimeofday enter\n");
+                        return flags | sys_gettimeofday_enter(ctx);
                 default:
                         return 1;
         }
+        return 1;
+}
 
-        // if (ctx->nr != 49) { // bind
-        //         return 1;
-        // }
-        // bpf_printk("Definitely got here :/\n");
-
-        // struct sockaddr_in addr;
-        // if (bpf_probe_read_user(&addr, sizeof(addr), (void *)ctx->arg1) < 0) {
-        //         bpf_printk("failed the readuser\n");
-        //         return 0;
-        // }
-        // ctx->arg1 = 16;
-        // for (size_t i = 0; i < sizeof(struct sockaddr_in); ++i) {
-        //         ((char *)ctx->scratch)[16 + i] = 0;
-        // }
-        // ctx->resolve_ptr_regs = 0b10;
-
-        // bpf_printk("nr=%lu\n", ctx->nr);
-                
-        // bpf_printk("arg0=%llu\n", ctx->arg0);
-        // bpf_printk("ctx->arg1=%zx\n", ctx->arg1);
-        // bpf_printk("ctx->arg2=%llu\n", ctx->arg2);
-
-        
-
-        // bpf_printk("sin_family=%u\n", addr.sin_family);
-        // bpf_printk("sin_addr=%u\n", bpf_ntohl(addr.sin_addr.s_addr));
-        // bpf_printk("sin_port=%u\n", bpf_ntohs(addr.sin_port));
-
+SEC("group/syscall_exit")
+int bpf_syscall_exit(struct bpf_cg_syscall_enter *ctx)
+{
+        switch (ctx->nr) {
+                case SYS_gettimeofday:
+                        bpf_printk("SYS_gettimeofday exit\n");
+                        return sys_gettimeofday_exit(ctx);
+                default:
+                        return 1;
+        }
         return 1;
 }
 

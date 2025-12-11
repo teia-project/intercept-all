@@ -22,6 +22,7 @@ struct bpf_cg_syscall_enter {
 	// after we return control to the kernel, to do this we use
 	// `resolve_ptr_regs`.
 	char scratch[4096];
+        __u64 active_eps_hooks[8];
 };
 
 
