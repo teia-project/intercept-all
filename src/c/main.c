@@ -22,10 +22,6 @@ int main() {
   int flags = O_WRONLY | O_CREAT | O_TRUNC;
   int perms = 0644;
   long fd;
-  int x;
-  if (scanf("%d", &x) != 1) {
-    /* handle error */
-  }
   asm volatile("mov %[perms], %%r10\n\t" // 4th arg
                "mov %[nr], %%rax\n\t"    // syscall number
                "syscall"
