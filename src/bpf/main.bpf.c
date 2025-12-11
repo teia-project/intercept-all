@@ -54,41 +54,24 @@ int sys_gettimeofday_enter(struct bpf_cg_syscall_enter *ctx)
         return 1;
 }
 
-int sys_gettimeofday_exit(struct bpf_cg_syscall_enter *ctx)
-{
-        // // first get the userspace pointer we stowed in scratch
-        // struct timeval *uptr;
-        // for (int i = 0; i < 8; ++i) {
-        //         ((char *)&uptr)[i] = ctx->scratch[i];
-        // }
-        // // then copy the output of the actual syscall
-        // struct timeval tv;
-        // for (int i = 8; i < sizeof(struct timeval); ++i) {
-        //         ((char *)&tv)[i] = ctx->scratch[i];
-        // }
-        // // then copy it back to userspace
-        // bpf_probe_write_user((void *)uptr, (void *)&tv, sizeof(struct timeval));
-        return 1;
-}
-
 SEC("cgroup/syscall_enter")
 int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
 {
         int flags = 0; 
-        // // if this is the first time we call a syscall, update this
-        // if (ctx->active_eps_hooks[0] == 0xfffffffffffffffful) {
-        //         ctx->active_eps_hooks[0] = 0;
-        //         ctx->active_eps_hooks[1] = 1ul << (96 - 63);
-        //         ctx->active_eps_hooks[2] = 0;
-        //         ctx->active_eps_hooks[3] = 0;
-        //         ctx->active_eps_hooks[4] = 0;
-        //         ctx->active_eps_hooks[5] = 0;
-        //         ctx->active_eps_hooks[6] = 0;
-        //         ctx->active_eps_hooks[7] = 0;
-        //         flags |= 4;
-        //         bpf_printk("update singleton");
-        // }
-        // main switch
+        // if this is the first time we call a syscall, update this
+        if (ctx->active_eps_hooks[0] == 0xfffffffffffffffful) {
+                ctx->active_eps_hooks[0] = 0;
+                ctx->active_eps_hooks[1] = 1ul << (96 - 63);
+                ctx->active_eps_hooks[2] = 0;
+                ctx->active_eps_hooks[3] = 0;
+                ctx->active_eps_hooks[4] = 0;
+                ctx->active_eps_hooks[5] = 0;
+                ctx->active_eps_hooks[6] = 0;
+                ctx->active_eps_hooks[7] = 0;
+                flags |= 4;
+                bpf_printk("update singleton");
+        }
+        main switch
         switch (ctx->nr) {
                 case SYS_gettimeofday:
                         bpf_printk("SYS_gettimeofday enter\n");
@@ -98,6 +81,23 @@ int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
         }
         return 1;
 }
+
+// int sys_gettimeofday_exit(struct bpf_cg_syscall_enter *ctx)
+// {
+//         // first get the userspace pointer we stowed in scratch
+//         struct timeval *uptr;
+//         for (int i = 0; i < 8; ++i) {
+//                 ((char *)&uptr)[i] = ctx->scratch[i];
+//         }
+//         // then copy the output of the actual syscall
+//         struct timeval tv;
+//         for (int i = 8; i < sizeof(struct timeval); ++i) {
+//                 ((char *)&tv)[i] = ctx->scratch[i];
+//         }
+//         // then copy it back to userspace
+//         bpf_probe_write_user((void *)uptr, (void *)&tv, sizeof(struct timeval));
+//         return 1;
+// }
 
 // SEC("cgroup/syscall_exit")
 // int bpf_syscall_exit(struct bpf_cg_syscall_enter *ctx)
