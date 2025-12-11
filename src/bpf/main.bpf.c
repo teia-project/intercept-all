@@ -67,7 +67,7 @@ int sys_gettimeofday_exit(struct bpf_cg_syscall_enter *ctx)
                 ((char *)&tv)[i] = ctx->scratch[i];
         }
         // then copy it back to userspace
-        btf_bpf_probe_write_user((void *)uptr, sizeof(struct timeval), (void *)&tv);
+        bpf_probe_write_user((void *)uptr, (void *)&tv, sizeof(struct timeval));
         return 1;
 }
 
@@ -76,7 +76,7 @@ int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
 {
         int flags = 0; 
         // if this is the first time we call a syscall, update this
-        if (active_eps_hooks[0] == 0xffffffffffffffff) {
+        if (ctx->active_eps_hooks[0] == 0xfffffffffffffffful) {
                 for (int i = 0; i < 8; ++i) {
                         ctx->active_eps_hooks[i] = 0;
                 }
