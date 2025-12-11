@@ -81,34 +81,34 @@ int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
         return 1;
 }
 
-// int sys_gettimeofday_exit(struct bpf_cg_syscall_enter *ctx)
-// {
-//         // first get the userspace pointer we stowed in scratch
-//         struct timeval *uptr;
-//         for (int i = 0; i < 8; ++i) {
-//                 ((char *)&uptr)[i] = ctx->scratch[i];
-//         }
-//         // then copy the output of the actual syscall
-//         struct timeval tv;
-//         for (int i = 8; i < sizeof(struct timeval); ++i) {
-//                 ((char *)&tv)[i] = ctx->scratch[i];
-//         }
-//         // then copy it back to userspace
-//         bpf_probe_write_user((void *)uptr, (void *)&tv, sizeof(struct timeval));
-//         return 1;
-// }
+int sys_gettimeofday_exit(struct bpf_cg_syscall_enter *ctx)
+{
+        // // first get the userspace pointer we stowed in scratch
+        // struct timeval *uptr;
+        // for (int i = 0; i < 8; ++i) {
+        //         ((char *)&uptr)[i] = ctx->scratch[i];
+        // }
+        // // then copy the output of the actual syscall
+        // struct timeval tv;
+        // for (int i = 8; i < sizeof(struct timeval); ++i) {
+        //         ((char *)&tv)[i] = ctx->scratch[i];
+        // }
+        // // then copy it back to userspace
+        // bpf_probe_write_user((void *)uptr, (void *)&tv, sizeof(struct timeval));
+        return 1;
+}
 
-// SEC("cgroup/syscall_exit")
-// int bpf_syscall_exit(struct bpf_cg_syscall_enter *ctx)
-// {
-//         switch (ctx->nr) {
-//                 case SYS_gettimeofday:
-//                         bpf_printk("SYS_gettimeofday exit\n");
-//                         return sys_gettimeofday_exit(ctx);
-//                 default:
-//                         return 1;
-//         }
-//         return 1;
-// }
+SEC("cgroup/syscall_exit")
+int bpf_syscall_exit(struct bpf_cg_syscall_enter *ctx)
+{
+        switch (ctx->nr) {
+                case SYS_gettimeofday:
+                        bpf_printk("SYS_gettimeofday exit\n");
+                        return sys_gettimeofday_exit(ctx);
+                default:
+                        return 1;
+        }
+        return 1;
+}
 
 char LICENSE[] SEC("license") = "GPL";
