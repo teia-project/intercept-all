@@ -95,7 +95,7 @@ int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
         return 1;
 }
 
-SEC("group/syscall_exit")
+SEC("cgroup/syscall_exit")
 int bpf_syscall_exit(struct bpf_cg_syscall_enter *ctx)
 {
         switch (ctx->nr) {
