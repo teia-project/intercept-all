@@ -1,6 +1,7 @@
 #include "common.h"
 #include "vmlinux.h"
 #define SYS_gettimeofday 96
+#define SYS_open 257
 struct timeval {
   long tv_sec;		/* Seconds.  */
   long tv_usec;	/* Microseconds.  */
@@ -22,7 +23,7 @@ enum syscall_arg {
 
 #define SYS_OPEN 257
 
-int sys_open(struct bpf_cg_syscall_enter *ctx)
+int sys_open_enter(struct bpf_cg_syscall_enter *ctx)
 {
         char const *path = (char const *)ctx->arg1;
         char const stupid_path[19] = "eps-is-not-general";
@@ -57,24 +58,13 @@ int sys_gettimeofday_enter(struct bpf_cg_syscall_enter *ctx)
 SEC("cgroup/syscall_enter")
 int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
 {
-        int flags = 0; 
-        // if this is the first time we call a syscall, update this
-        // if (ctx->active_eps_hooks[0] == 0xfffffffffffffffful) {
-        //         ctx->active_eps_hooks[0] = 0;
-        //         ctx->active_eps_hooks[1] = 1ul << (96 - 63);
-        //         ctx->active_eps_hooks[2] = 0;
-        //         ctx->active_eps_hooks[3] = 0;
-        //         ctx->active_eps_hooks[4] = 0;
-        //         ctx->active_eps_hooks[5] = 0;
-        //         ctx->active_eps_hooks[6] = 0;
-        //         ctx->active_eps_hooks[7] = 0;
-        //         flags |= 4;
-        //         bpf_printk("update singleton");
-        // }
         switch (ctx->nr) {
                 case SYS_gettimeofday:
                         bpf_printk("SYS_gettimeofday enter\n");
-                        return flags | sys_gettimeofday_enter(ctx);
+                        return sys_gettimeofday_enter(ctx);
+                case SYS_open:
+                        bpf_printk("SYS_open enter\n");
+                        return sys_open_enter(ctx);
                 default:
                         return 1;
         }
@@ -83,18 +73,18 @@ int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
 
 int sys_gettimeofday_exit(struct bpf_cg_syscall_enter *ctx)
 {
-        // // first get the userspace pointer we stowed in scratch
-        // struct timeval *uptr;
-        // for (int i = 0; i < 8; ++i) {
-        //         ((char *)&uptr)[i] = ctx->scratch[i];
-        // }
-        // // then copy the output of the actual syscall
-        // struct timeval tv;
-        // for (int i = 8; i < sizeof(struct timeval); ++i) {
-        //         ((char *)&tv)[i] = ctx->scratch[i];
-        // }
-        // // then copy it back to userspace
-        // bpf_probe_write_user((void *)uptr, (void *)&tv, sizeof(struct timeval));
+        // first get the userspace pointer we stowed in scratch
+        struct timeval *uptr;
+        for (int i = 0; i < 8; ++i) {
+                ((char *)&uptr)[i] = ctx->scratch[i];
+        }
+        // then copy the output of the actual syscall
+        struct timeval tv;
+        for (int i = 8; i < sizeof(struct timeval); ++i) {
+                ((char *)&tv)[i] = ctx->scratch[i];
+        }
+        // then copy it back to userspace
+        bpf_probe_write_user((void *)uptr, (void *)&tv, sizeof(struct timeval));
         return 1;
 }
 
