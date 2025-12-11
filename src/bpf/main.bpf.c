@@ -99,17 +99,17 @@ int bpf_syscall_enter(struct bpf_cg_syscall_enter *ctx)
         return 1;
 }
 
-SEC("cgroup/syscall_exit")
-int bpf_syscall_exit(struct bpf_cg_syscall_enter *ctx)
-{
-        switch (ctx->nr) {
-                case SYS_gettimeofday:
-                        bpf_printk("SYS_gettimeofday exit\n");
-                        return sys_gettimeofday_exit(ctx);
-                default:
-                        return 1;
-        }
-        return 1;
-}
+// SEC("cgroup/syscall_exit")
+// int bpf_syscall_exit(struct bpf_cg_syscall_enter *ctx)
+// {
+//         switch (ctx->nr) {
+//                 case SYS_gettimeofday:
+//                         bpf_printk("SYS_gettimeofday exit\n");
+//                         return sys_gettimeofday_exit(ctx);
+//                 default:
+//                         return 1;
+//         }
+//         return 1;
+// }
 
 char LICENSE[] SEC("license") = "GPL";
